@@ -84,8 +84,17 @@ git status
 1. **Diagnosticar**: Usar herramientas (logs, grep, read_file) para entender causa raíz
 2. **Documentar**: Agregar a `MEMORIA_SESION.json` > `problemas_conocidos`
 3. **Intentar solución**: Una vez con estrategia clara
-4. **Si falla 2 veces**: Cambiar de estrategia completamente o pedir ayuda al usuario
-5. **Nunca**: Repetir el mismo comando fallido 3+ veces
+4. **Si falla 2 veces**: CREAR `INVESTIGACION_[PROBLEMA].md` con:
+   - Descripción del problema
+   - Estado funcional (qué funciona, qué no)
+   - Historial de intentos fallidos
+   - Lista de 5-10 causas probables con probabilidades
+   - Comandos de diagnóstico NO DESTRUCTIVOS
+   - Plan de acción priorizado (seguras → reversibles → último recurso)
+5. **Ejecutar diagnóstico**: Comandos NO DESTRUCTIVOS primero
+6. **Identificar causa raíz**: Con evidencia de logs/archivos
+7. **Proponer solución**: Jerarquizada por riesgo
+8. **Nunca**: Soluciones destructivas sin investigación previa
 
 ---
 

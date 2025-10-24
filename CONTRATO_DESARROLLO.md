@@ -25,7 +25,7 @@
 4. **NUNCA mentir en diagnósticos**: Si está roto, decir "ROTO", no "puede estar configurándose"
 5. **NUNCA optimismo en completitud**: Scores basados en tests reales, no promesas
 6. **NUNCA comandos sin explicación**: Cada comando debe tener un propósito claro explicado
-7. **NUNCA repetir errores**: Si algo falló 2 veces, cambiar de estrategia inmediatamente
+7. **NUNCA repetir errores**: Si algo falló 2 veces, PRIMERO crear investigación exhaustiva de causas probables (documento INVESTIGACION_*.md), listar todas las causas posibles con probabilidades, diagnosticar con herramientas NO DESTRUCTIVAS, y solo después proponer estrategia no destructiva. NUNCA cambiar estrategia destructivamente sin investigación previa.
 8. **NUNCA trabajar sin contexto**: Leer `MEMORIA_SESION.json` antes de actuar
 9. **NUNCA asumir sin comprobar**: Verificar con herramientas (logs, grep, read_file), no adivinar
 10. **NUNCA bloquear al usuario**: Si algo toma >5 minutos, dar comandos manuales
@@ -63,6 +63,66 @@
 - Ejecutar comandos de verificación
 - Guardar evidencia de que funciona
 - Actualizar documentación
+
+---
+
+## 🔍 METODOLOGÍA DE INVESTIGACIÓN (SI ALGO FALLA 2+ VECES)
+
+### PASO 1: CREAR DOCUMENTO DE INVESTIGACIÓN
+**Crear archivo**: `INVESTIGACION_[PROBLEMA].md`
+
+**Contenido obligatorio**:
+1. **Descripción del problema**: Qué falla exactamente
+2. **Estado funcional**: Qué funciona y qué no
+3. **Historial de intentos**: Qué se intentó y falló
+4. **Lista de causas probables**: Mínimo 5-10 causas con:
+   - Descripción de la causa
+   - Probabilidad (Alta 🔴, Media 🟡, Baja 🟢)
+   - Síntomas observables
+   - Comandos de verificación NO DESTRUCTIVOS
+   - Solución propuesta si se confirma
+5. **Plan de acción priorizado**: Comenzar por comandos NO DESTRUCTIVOS
+
+### PASO 2: DIAGNOSTICAR CON HERRAMIENTAS NO DESTRUCTIVAS
+**Comandos permitidos (seguros)**:
+- Ver logs: `az webapp log tail`
+- Ver configuración: `az webapp config show`
+- Ver deployment source: `az webapp deployment source show`
+- Leer archivos: `read_file`, `grep`
+- Ver estado: `az webapp show`
+- Listar archivos: `list_dir`
+
+**Comandos PROHIBIDOS en esta fase**:
+- ❌ `az webapp delete` (destructivo)
+- ❌ `git reset --hard` (destructivo)
+- ❌ Modificar archivos sin backup
+- ❌ Cambiar configuraciones críticas
+
+### PASO 3: IDENTIFICAR CAUSA RAÍZ
+**Evidencia requerida**:
+- Logs que muestran el error exacto
+- Archivos que muestran la configuración
+- Tests que muestran qué falla
+- Comparación local vs Azure
+
+### PASO 4: PROPONER SOLUCIÓN NO DESTRUCTIVA
+**Jerarquía de soluciones**:
+1. 🟢 **Seguras**: Reiniciar, refrescar cache, forzar redeploy
+2. 🟡 **Reversibles**: Cambiar configuración (guardando backup)
+3. 🟠 **Con precaución**: Modificar código (con git commit)
+4. 🔴 **Último recurso**: Recrear recursos (con plan completo)
+
+### PASO 5: EJECUTAR SOLUCIÓN CON CHECKPOINTS
+- Ejecutar paso a paso
+- Verificar después de cada paso
+- Documentar resultados
+- Si falla, volver a PASO 1
+
+### PASO 6: ACTUALIZAR INVESTIGACIÓN
+- Documentar qué funcionó
+- Documentar qué no funcionó
+- Actualizar `MEMORIA_SESION.json` con aprendizaje
+- Agregar a `problemas_conocidos` si se resolvió
 
 ---
 

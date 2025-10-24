@@ -39,7 +39,7 @@ Estás trabajando en **ECONEURA**, una plataforma enterprise de gobernanza de au
 - NUNCA asumas que algo funciona sin evidencia
 - SIEMPRE usa herramientas (logs, grep, read_file) para diagnosticar
 - NUNCA repitas el mismo comando fallido más de 2 veces
-- SIEMPRE cambia de estrategia si algo falla 2 veces
+- Si algo falla 2 veces: CREAR documento `INVESTIGACION_*.md` con causas probables, diagnosticar con comandos NO DESTRUCTIVOS, proponer solución jerarquizada (seguras → reversibles → último recurso)
 
 ### Memoria y documentación
 - SIEMPRE actualiza `MEMORIA_SESION.json` después de cambios importantes

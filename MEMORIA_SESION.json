@@ -50,11 +50,13 @@
       "fecha": "2025-10-24T13:30:00Z"
     },
     "backend_azure": {
-      "status": "desplegando",
+      "status": "error_503_persistente",
       "url": "https://econeura-backend-v2.azurewebsites.net",
-      "ultimo_test": null,
-      "problema_conocido": "503 error persistente histórico - workflows corregidos deberían resolver",
-      "deployment_esperado": "2025-10-24T14:48:00Z"
+      "ultimo_test": "2025-10-24T14:45:00Z",
+      "resultado_test": "503 Servidor no disponible",
+      "problema_conocido": "503 error persistente - workflows ejecutados pero deployment no funciona",
+      "causa_probable": "Módulos no desplegados, deployment corrupto, o App Service requiere recreación",
+      "proxima_accion": "Diagnosticar logs Azure, forzar redeploy, o recrear App Service"
     },
     "frontend_azure": {
       "status": "desplegando",
