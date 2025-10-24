@@ -1,0 +1,236 @@
+// ECONEURA Backend v2.0 - 100% AZURE - STANDALONE
+// NO dependencies on monorepo structure
+
+const express = require('express');
+const healthRouter = require('./api/health');
+const cors = require('cors');
+const https = require('https');
+const compression = require('compression');
+const helmet = require('helmet');
+require('dotenv').config();
+
+// === ROUTERS ENTERPRISE ===
+const authRouter = require('./api/auth/login');
+const chatsRouter = require('./api/chats');
+const webhooksRouter = require('./api/webhooks');
+const finopsRouter = require('./api/finops');
+const agentsRouter = require('./api/agents');
+const proposalsRouter = require('./api/proposals');
+const { authMiddleware } = require('./auth-simple');
+// const { globalLimiter } = require('./middleware/rateLimiter');
+const db = require('./db');
+const cacheService = require('./services/cache.service');
+
+const app = express();
+
+// Performance & Security middleware
+app.use(compression()); // MEJORA 4: Gzip compression
+app.use(helmet({
+  contentSecurityPolicy: false, // CSP ya está en Azure Static Web Apps
+  crossOriginEmbedderPolicy: false
+})); // MEJORA 10: Security headers
+const PORT = process.env.PORT || 8080; // Azure usa 8080 por defecto
+let OPENAI_KEY = process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.trim() : null;
+
+console.log('=== ECONEURA Backend Starting ===');
+console.log('PORT:', PORT);
+console.log('OPENAI_KEY configured:', !!OPENAI_KEY);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
+// CORS - Azure + Cloudflare
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://econeura.com', 'https://www.econeura.com', 'https://happy-pebble-0553f1003.3.azurestaticapps.net']
+    : '*', // Permisivo en desarrollo
+  credentials: false,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: '*' // Permitir todos los headers en desarrollo
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+
+// Rate limiting (3 niveles)
+// app.use(globalLimiter);
+
+// Prompts avanzados (leer de archivos prompts/)
+const prompts = {
+  'a-ceo-01': require('./prompts/neura-ceo'),
+  'a-ia-01': require('./prompts/neura-ia'),
+  'a-cso-01': require('./prompts/neura-cso'),
+  'a-cto-01': require('./prompts/neura-cto'),
+  'a-ciso-01': require('./prompts/neura-ciso'),
+  'a-coo-01': require('./prompts/neura-coo'),
+  'a-chro-01': require('./prompts/neura-chro'),
+  'a-mkt-01': require('./prompts/neura-cmo'),
+  'a-cfo-01': require('./prompts/neura-cfo'),
+  'a-cdo-01': require('./prompts/neura-cdo')
+};
+
+function getPrompt(agentId) {
+  const promptConfig = prompts[agentId];
+  if (promptConfig && promptConfig.systemPrompt) {
+    return promptConfig.systemPrompt;
+  }
+  return 'Eres un asistente ejecutivo de ECONEURA. Respondes de forma profesional y concisa en español.';
+}
+
+// OpenAI API call
+function llamarOpenAI(messages) {
+  return new Promise((resolve) => {
+    if (!OPENAI_KEY) {
+      console.error('[OpenAI] No API key configured');
+      return resolve('Error: OpenAI API key not configured');
+    }
+
+    const payload = {
+      model: 'gpt-4o-mini',
+      messages: messages,
+      max_tokens: 300, // MEJORA 1: Reducido de 500 → 300 (respuestas +30% más rápidas)
+      temperature: 0.7
+    };
+
+    const data = JSON.stringify(payload);
+    // Clean API key (remove any invalid characters)
+    const cleanKey = OPENAI_KEY.replace(/[^\x20-\x7E]/g, '').trim();
+    
+    const options = {
+      hostname: 'api.openai.com',
+      port: 443,
+      path: '/v1/chat/completions',
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${cleanKey}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(data)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', (chunk) => body += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(body);
+          
+          if (res.statusCode === 200) {
+            const texto = json.choices?.[0]?.message?.content || '';
+            console.log('[OpenAI] Success:', texto.length, 'chars');
+            resolve(texto.trim());
+          } else {
+            console.error('[OpenAI] Error:', res.statusCode, json);
+            resolve(`Error: ${json.error?.message || 'OpenAI request failed'}`);
+          }
+        } catch (err) {
+          console.error('[OpenAI] Parse error:', err.message);
+          resolve('Error: Failed to parse OpenAI response');
+        }
+      });
+    });
+
+    req.on('error', (err) => {
+      console.error('[OpenAI] Request error:', err.message);
+      resolve('Error: Failed to connect to OpenAI');
+    });
+
+    req.write(data);
+    req.end();
+  });
+}
+
+// Health endpoint - MEJORA 9: Enhanced with metrics
+const startTime = Date.now();
+app.get('/api/health', (req, res) => {
+  const uptime = Math.floor((Date.now() - startTime) / 1000);
+  const memoryUsage = process.memoryUsage();
+  
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // MEJORA 2: Cache headers
+  res.json({
+    status: 'ok',
+    provider: 'openai',
+    model: 'gpt-4o-mini',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    uptime: `${uptime}s`,
+    memory: {
+      heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024) + ' MB',
+      heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024) + ' MB'
+    }
+  });
+});
+
+// Chat endpoint
+app.post('/api/invoke/:id', async (req, res) => {
+  const { input } = req.body;
+  const { id: agentId } = req.params;
+
+  if (!input) {
+    return res.status(400).json({ error: 'Input required' });
+  }
+
+  console.log('[Chat] Request:', agentId, '-', input.substring(0, 50));
+
+  try {
+    const systemPrompt = getPrompt(agentId);
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: input }
+    ];
+
+    const startTime = Date.now();
+    const output = await llamarOpenAI(messages);
+    const duration = Date.now() - startTime;
+
+    console.log('[Chat] Response:', duration, 'ms -', output.length, 'chars');
+
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // MEJORA 2: No cache chat
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.json({
+      output: output,
+      provider: 'openai',
+      model: 'gpt-4o-mini',
+      agentId: agentId,
+      latency: duration // MEJORA 9: Incluir latencia en response
+    });
+
+  } catch (error) {
+    console.error('[Chat] Error:', error.message);
+    res.status(500).json({
+      error: error.message,
+      provider: 'error'
+    });
+  }
+});
+
+
+// Inicializar Redis Cache
+if (process.env.REDIS_URL) {
+  cacheService.initRedis()
+    .then(() => console.log('✅ Redis Cache connected'))
+    .catch(err => console.log('⚠️  Redis not available:', err.message));
+}
+// Start server
+
+
+// === ENTERPRISE ROUTERS ===
+app.use('/api/auth', authRouter);
+app.use('/api/chats', authMiddleware, chatsRouter);
+app.use('/api/webhooks', webhooksRouter);
+app.use('/api/finops', authMiddleware, finopsRouter);
+app.use('/api/agents', authMiddleware, agentsRouter);
+app.use('/api/proposals', authMiddleware, proposalsRouter);
+app.use('/api/health', healthRouter);
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log('\n' + '='.repeat(55));
+  console.log('  ECONEURA Backend Ready v2.0 - STANDALONE');
+  console.log('='.repeat(55));
+  console.log(`  Server:   http://0.0.0.0:${PORT}`);
+  console.log('  Provider: OpenAI (gpt-4o-mini)');
+  console.log('  Status:   Ready');
+  console.log('='.repeat(55) + '\n');
+});
+
+
+
+
