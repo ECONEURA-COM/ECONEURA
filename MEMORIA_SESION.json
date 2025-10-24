@@ -1,0 +1,208 @@
+{
+  "meta": {
+    "ultima_actualizacion": "2025-10-24T14:45:00Z",
+    "sesion_actual": 5,
+    "commit_actual": "18654f1e",
+    "version_memoria": "1.0"
+  },
+  "proyecto": {
+    "nombre": "ECONEURA",
+    "version": "2.1.0",
+    "descripcion_corta": "Plataforma enterprise gobernanza automatizaciones",
+    "stack": {
+      "backend": "Node.js 20, Express, OpenAI, PostgreSQL, Redis",
+      "frontend": "React 18, TypeScript, Vite, TailwindCSS",
+      "infra": "Azure App Service, Static Web Apps, GitHub Actions"
+    }
+  },
+  "estado_funcional": {
+    "backend_local": {
+      "status": "funcional",
+      "puerto": 8080,
+      "verificado": "2025-10-24T12:35:00Z",
+      "evidencia": "Health 200 OK, Auth token generado, NEURA responde con OpenAI"
+    },
+    "frontend_local": {
+      "status": "funcional",
+      "puerto": 5173,
+      "verificado": "2025-10-24T12:36:00Z",
+      "evidencia": "UI carga, Login funciona, Chat funciona, Build completo en dist/"
+    },
+    "backend_github": {
+      "status": "subido",
+      "archivos": 48,
+      "lineas": 15855,
+      "commit": "0591dc95",
+      "fecha": "2025-10-24T13:00:00Z"
+    },
+    "frontend_github": {
+      "status": "subido",
+      "archivos": 97,
+      "lineas": 16793,
+      "commit": "f090b09f",
+      "fecha": "2025-10-24T13:15:00Z"
+    },
+    "workflows_github": {
+      "status": "corregidos",
+      "archivos": 7,
+      "commit": "18654f1e",
+      "mejoras": "actions@v4, cache npm, validación build, Node 20.x especificado",
+      "fecha": "2025-10-24T13:30:00Z"
+    },
+    "backend_azure": {
+      "status": "desplegando",
+      "url": "https://econeura-backend-v2.azurewebsites.net",
+      "ultimo_test": null,
+      "problema_conocido": "503 error persistente histórico - workflows corregidos deberían resolver",
+      "deployment_esperado": "2025-10-24T14:48:00Z"
+    },
+    "frontend_azure": {
+      "status": "desplegando",
+      "url": "https://delightful-sand-04fd53203.3.azurestaticapps.net",
+      "ultimo_test": null,
+      "deployment_esperado": "2025-10-24T14:48:00Z"
+    }
+  },
+  "urls_criticas": {
+    "github_repo": "https://github.com/ECONEURA-COM/ECONEURA.git",
+    "github_actions": "https://github.com/ECONEURA-COM/ECONEURA/actions",
+    "azure_portal": "https://portal.azure.com",
+    "backend_prod": "https://econeura-backend-v2.azurewebsites.net",
+    "frontend_prod": "https://delightful-sand-04fd53203.3.azurestaticapps.net",
+    "backend_health": "https://econeura-backend-v2.azurewebsites.net/api/health",
+    "backend_local": "http://localhost:8080",
+    "frontend_local": "http://localhost:5173"
+  },
+  "secretos_configurados": {
+    "github_secrets": [
+      "AZUREAPPSERVICE_CLIENTID_228BB4F67E6747C6886891A0F7C481BA",
+      "AZUREAPPSERVICE_SUBSCRIPTIONID_E2F9A065396E422B94CB688F8F8E7A3C",
+      "AZUREAPPSERVICE_TENANTID_4DBBD9DCB62144A6BA134C4D2F1A072F",
+      "AZURE_STATIC_WEB_APPS_API_TOKEN",
+      "AZURE_WEBAPP_PUBLISH_PROFILE",
+      "OPENAI_API_KEY"
+    ],
+    "azure_app_service_variables": [
+      "OPENAI_API_KEY",
+      "DATABASE_URL",
+      "REDIS_URL",
+      "JWT_SECRET",
+      "NODE_ENV",
+      "PORT"
+    ]
+  },
+  "comandos_verificacion": {
+    "backend_local_start": "cd C:\\Users\\Usuario\\ECONEURA-NUEVO\\backend && npm start",
+    "frontend_local_start": "cd C:\\Users\\Usuario\\ECONEURA-NUEVO\\frontend && npm run dev",
+    "test_health_local": "Invoke-WebRequest -Uri 'http://localhost:8080/api/health' -UseBasicParsing",
+    "test_auth_local": "$body = '{\"email\":\"demo@econeura.com\",\"password\":\"demo123\"}'; Invoke-WebRequest -Uri 'http://localhost:8080/api/auth/login' -Method POST -Body $body -ContentType 'application/json' -UseBasicParsing",
+    "test_neura_local": "$body = '{\"input\":\"Hola CEO\"}'; Invoke-WebRequest -Uri 'http://localhost:8080/api/invoke/a-ceo-01' -Method POST -Body $body -ContentType 'application/json' -UseBasicParsing",
+    "test_health_azure": "Invoke-WebRequest -Uri 'https://econeura-backend-v2.azurewebsites.net/api/health' -UseBasicParsing",
+    "test_frontend_azure": "Invoke-WebRequest -Uri 'https://delightful-sand-04fd53203.3.azurestaticapps.net' -UseBasicParsing",
+    "ver_logs_azure": "az webapp log tail --name econeura-backend-v2 --resource-group appsvc_linux_northeurope_basic",
+    "ver_workflows": "Start-Process 'https://github.com/ECONEURA-COM/ECONEURA/actions'",
+    "git_status": "cd C:\\Users\\Usuario\\ECONEURA-NUEVO && git status",
+    "git_commit_push": "cd C:\\Users\\Usuario\\ECONEURA-NUEVO && git add . && git commit -m 'MESSAGE' && git push origin main"
+  },
+  "problemas_conocidos": [
+    {
+      "id": 1,
+      "problema": "Backend Azure 503 persistente histórico",
+      "causa": "Deployment corrupto, módulos faltantes, o rateLimiter.js no desplegado",
+      "solucion": "Workflows corregidos con cache y validación - deployment en curso",
+      "estado": "en_resolucion",
+      "fecha": "2025-10-24"
+    },
+    {
+      "id": 2,
+      "problema": "API key expuesta en commits históricos",
+      "causa": ".env no estaba en .gitignore inicialmente",
+      "solucion": "git filter-branch aplicado, historial limpio, .gitignore actualizado",
+      "estado": "resuelto",
+      "fecha": "2025-10-24"
+    },
+    {
+      "id": 3,
+      "problema": "Workflows usaban actions@v3 deprecadas",
+      "causa": "Workflows generados automáticamente por Azure con versiones antiguas",
+      "solucion": "Actualizados a actions@v4 + cache npm + validación build",
+      "estado": "resuelto",
+      "fecha": "2025-10-24"
+    }
+  },
+  "proximas_acciones": [
+    {
+      "id": 1,
+      "accion": "Verificar que workflows GitHub Actions completan sin errores",
+      "comando": "Start-Process 'https://github.com/ECONEURA-COM/ECONEURA/actions'",
+      "tiempo_estimado": "3 minutos",
+      "prioridad": "alta",
+      "dependencias": []
+    },
+    {
+      "id": 2,
+      "accion": "Testear backend Azure después de deployment",
+      "comando": "Invoke-WebRequest -Uri 'https://econeura-backend-v2.azurewebsites.net/api/health' -UseBasicParsing",
+      "tiempo_estimado": "30 segundos",
+      "prioridad": "alta",
+      "dependencias": [1]
+    },
+    {
+      "id": 3,
+      "accion": "Testear frontend Azure después de deployment",
+      "comando": "Invoke-WebRequest -Uri 'https://delightful-sand-04fd53203.3.azurestaticapps.net' -UseBasicParsing",
+      "tiempo_estimado": "30 segundos",
+      "prioridad": "alta",
+      "dependencias": [1]
+    },
+    {
+      "id": 4,
+      "accion": "Testear NEURA en Azure",
+      "comando": "$body = '{\"input\":\"Hola CEO\"}'; Invoke-WebRequest -Uri 'https://econeura-backend-v2.azurewebsites.net/api/invoke/a-ceo-01' -Method POST -Body $body -ContentType 'application/json' -UseBasicParsing",
+      "tiempo_estimado": "30 segundos",
+      "prioridad": "alta",
+      "dependencias": [2]
+    },
+    {
+      "id": 5,
+      "accion": "Actualizar README.md con URLs verificadas",
+      "comando": "Editar README.md con estado real de deployment",
+      "tiempo_estimado": "5 minutos",
+      "prioridad": "media",
+      "dependencias": [2, 3, 4]
+    }
+  ],
+  "historial_sesiones": [
+    {
+      "sesion": 5,
+      "fecha": "2025-10-24",
+      "duracion": "2 horas",
+      "logros": [
+        "Frontend subido a GitHub (97 archivos, 16,793 líneas)",
+        "Workflows corregidos (actions@v4 + cache + validación)",
+        "Sistema de contratos creado (CONTRATO_DESARROLLO.md, MEMORIA_SESION.json)",
+        "Historial Git limpio (secrets removidos con filter-branch)",
+        ".gitignore actualizado para proteger secrets"
+      ],
+      "problemas": [
+        "Azure 503 persistente - múltiples intentos de resolución",
+        "Workflows con versiones deprecadas - corregido",
+        "Falta de sistema de memoria - ahora implementado"
+      ],
+      "aprendizajes": [
+        "Necesidad de sistema de contratos para eficiencia",
+        "Importancia de verificar localmente antes de Azure",
+        "Workflows requieren versiones específicas y cache"
+      ]
+    }
+  ],
+  "metricas_eficiencia": {
+    "tiempo_sesion": "2 horas",
+    "comandos_ejecutados": "45+",
+    "commits_creados": 3,
+    "archivos_subidos": 145,
+    "problemas_resueltos": 2,
+    "problemas_pendientes": 1
+  }
+}
+
