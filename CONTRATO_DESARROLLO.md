@@ -138,6 +138,77 @@
 - ❌ Crear archivos temporales y no limpiarlos
 - ❌ Dar comandos que requieren interacción humana en CI/CD
 - ❌ Usar placeholders en comandos críticos
+- ❌ Dar comandos con sintaxis incorrecta (--yes, --manual-integration false)
+- ❌ Asumir que recursos existen sin verificar (plans, apps, etc.)
+- ❌ Dar comandos sin verificar sintaxis en documentación oficial
+
+---
+
+## 📝 METODOLOGÍA PARA COMANDOS MANUALES
+
+### REGLAS PARA DAR COMANDOS AL USUARIO:
+
+#### 1. VERIFICAR SINTAXIS ANTES DE DAR COMANDO
+- **NUNCA** asumir sintaxis de comandos Azure CLI/Git
+- **SIEMPRE** verificar flags válidos (no `--yes`, no `--manual-integration false`)
+- **SIEMPRE** verificar que recursos existen antes de usarlos (plans, apps)
+- **NUNCA** inventar sintaxis sin verificar documentación
+
+#### 2. COMANDOS EJECUTABLES SIN MODIFICACIONES
+- **NUNCA** usar placeholders: `[VALOR]`, `YOUR_KEY`, `<valor>`
+- **SIEMPRE** usar valores reales cuando los tengo
+- **SIEMPRE** indicar si necesito información del usuario con `[RESULTADO_DE_COMANDO_ANTERIOR]`
+- **NUNCA** comandos que requieren input interactivo
+
+#### 3. ESTRUCTURA ÓPTIMA DE COMANDOS
+```markdown
+### COMANDO X: [Nombre descriptivo]
+```powershell
+[comando exacto sin placeholders]
+```
+**Por qué**: [1 línea explicando necesidad]
+**Resultado esperado**: [output esperado]
+**Si falla**: [qué hacer]
+```
+
+#### 4. SECUENCIA DE COMANDOS
+- **Máximo 5 comandos** por respuesta
+- **Numerar** secuencialmente (COMANDO 1, 2, 3...)
+- **Indicar dependencias**: "Ejecutar después de COMANDO X"
+- **Incluir verificaciones**: Después de comandos críticos
+
+#### 5. COMANDOS CON VARIABLES/VALORES DINÁMICOS
+- **PRIMERO**: Comando para obtener el valor
+- **SEGUNDO**: Comando que usa el valor con `[RESULTADO]` claramente marcado
+- **NUNCA**: Adivinar valores de recursos que pueden no existir
+
+#### 6. MANEJO DE ERRORES EN COMANDOS
+- **SIEMPRE**: Indicar qué error es esperado vs inesperado
+- **SIEMPRE**: Dar solución alternativa si comando falla
+- **NUNCA**: Dar el mismo comando fallido sin diagnosticar
+
+### EJEMPLO DE COMANDOS ÓPTIMOS:
+
+**MAL (lo que NO hacer)**:
+```powershell
+az webapp create --plan [TU_PLAN] --name app --runtime "NODE:20-lts" --yes
+```
+❌ Placeholder `[TU_PLAN]`
+❌ Flag `--yes` no existe
+❌ No verifico que el plan existe
+
+**BIEN (lo que SÍ hacer)**:
+```powershell
+# COMANDO 1: Listar planes disponibles
+az appservice plan list --resource-group appsvc_linux_northeurope_basic --output table
+
+# COMANDO 2: Crear App Service con plan existente
+# Usar el nombre del plan que aparece en COMANDO 1
+az webapp create --resource-group appsvc_linux_northeurope_basic --plan [NOMBRE_DEL_PLAN_DE_COMANDO_1] --name econeura-backend-v2 --runtime "NODE:20-lts"
+```
+✅ Primero obtengo el valor
+✅ Indico claramente de dónde viene el valor
+✅ Sintaxis correcta verificada
 
 ---
 

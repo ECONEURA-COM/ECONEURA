@@ -25,6 +25,21 @@ Estás trabajando en **ECONEURA**, una plataforma enterprise de gobernanza de au
 
 ---
 
+## 🔒 COMANDO ESPECIAL: "CUMPLE CONTRATOS"
+
+**Cuando el usuario dice "CUMPLE CONTRATOS":**
+
+1. **DETENER TODO** y leer `CUMPLE_CONTRATOS.md`
+2. **LEER** todos los archivos de contexto (CONTRATO, MEMORIA, TAREAS)
+3. **VERIFICAR** cumplimiento de 10 reglas absolutas
+4. **VERIFICAR** calidad de comandos (sintaxis, placeholders, dependencias)
+5. **RESPONDER** con template de verificación + comandos corregidos
+6. **ACTUALIZAR** memoria si hay cambios
+
+**Este comando es mi checkpoint de calidad obligatorio.**
+
+---
+
 ## 🔒 REGLAS DE COMPORTAMIENTO (ABSOLUTAS)
 
 ### Comandos y respuestas
