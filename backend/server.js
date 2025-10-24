@@ -17,7 +17,7 @@ const finopsRouter = require('./api/finops');
 const agentsRouter = require('./api/agents');
 const proposalsRouter = require('./api/proposals');
 const { authMiddleware } = require('./auth-simple');
-// const { globalLimiter } = require('./middleware/rateLimiter');
+const { globalLimiter } = require('./middleware/rateLimiter');
 const db = require('./db');
 const cacheService = require('./services/cache.service');
 
@@ -51,7 +51,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Rate limiting (3 niveles)
-// app.use(globalLimiter);
+app.use(globalLimiter);
 
 // Prompts avanzados (leer de archivos prompts/)
 const prompts = {

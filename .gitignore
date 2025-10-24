@@ -1,0 +1,97 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Azure
+.azure/
+.vercel/
+
+# Logs
+logs/
+*.log
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# Cache
+.cache/
+.parcel-cache/
+tsconfig.tsbuildinfo
+
+
+
+
+# Secrets y credenciales - NUNCA commitear
+*.key
+*.secret
+*.pem
+*.pfx
+*.p12
+.env.local
+.env.production.local
+.env.*.local
+secrets/
+credentials/
+*.backup
+*.bak
+azure-credentials.json
+openai-key.txt
+publish-settings.xml
+*.publishsettings
+.azure-credentials
+service-principal.json
+
+# Logs sensibles
+*.log
+logs/
+.artifacts/*/evidence/gitleaks*.json
+.artifacts/*/evidence/*-secrets.json
+
+# Artifacts completos (contienen secrets en reportes)
+.artifacts/
+.nyc_output/
+
+# Azure CLI output con secrets
+az-output.json
+deployment-output.json
+
+# Archivos temporales con potencial info sensible
+*_SECRET.txt
+*_PASSWORD.txt
+*_TOKEN.txt
+*_KEY.txt
