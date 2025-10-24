@@ -48,18 +48,11 @@ jobs:
         with:
           name: node-app
       
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_228BB4F67E6747C6886891A0F7C481BA }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_4DBBD9DCB62144A6BA134C4D2F1A072F }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E2F9A065396E422B94CB688F8F8E7A3C }}
-
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'econeura-backend-v2'
-          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: .
           
