@@ -7,6 +7,11 @@ on:
   pull_request:
     branches: [main, develop]
 
+# DESHABILITADO: Falta secret SNYK_TOKEN
+# Para habilitar: Configurar SNYK_TOKEN en GitHub Settings
+env:
+  DISABLED: true
+
 permissions:
   contents: read
   security-events: write

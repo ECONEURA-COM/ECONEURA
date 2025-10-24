@@ -5,6 +5,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# DESHABILITADO: Falta secret AZURE_CREDENTIALS
+# Para habilitar: Configurar secret en GitHub Settings
+env:
+  DISABLED: true
+
 env:
   AZURE_RG: appsvc_linux_northeurope_basic
   AZURE_APP: econeura-backend-v2
